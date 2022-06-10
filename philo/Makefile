@@ -17,7 +17,7 @@ HEADER		= includes/philo.h
 
 DIR			=
 
-FILES		= philo.c \
+FILES		= philo.c utils.c init.c \
 
 
 SRCS		= $(addprefix $(DIR), $(FILES))
@@ -27,7 +27,7 @@ OBJS		= $(SRCS:%.c=%.o)
 DS			= $(SRCS:%.c=%.d)
 
 CC 			= cc
-CFLAGS		= -Wall -Wextra -Werror -MMD -pthread
+CFLAGS		= -Wall -Wextra -Werror -MMD #-pthread
 
 .PHONY: 	all clean fclean re bonus
 

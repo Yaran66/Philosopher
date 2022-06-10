@@ -1,88 +1,101 @@
-//
-// Created by Aleksey Tvorogov on 12/05/2022.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/10 17:59:45 by wjasmine          #+#    #+#             */
+/*   Updated: 2022/06/10 17:59:57 by wjasmine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 #include "includes/philo.h"
 
-int	mails = 0;
-pthread_mutex_t	mutex;
+//void*	routine()
+//{
+//	return(0); //TODO lock
+//}
 
-void*	routine()
+
+
+int are_you_dead(t_philo *philo)
 {
-	for (int i = 0; i < 10000000; i++){
-		pthread_mutex_lock(&mutex);
-		mails++;
-		pthread_mutex_unlock(&mutex);
-	}
-//	printf("Test from threads\n");
-//	sleep(3);
-//	printf("Ending threads\n");
-	return(0);
+	struct timeval current;
+	long long		long_current;
+	long long		long_meal_time;
+
+	long_current = time_converter(gettimeofday(&current, NULL));
+	long_meal_time = time_converter(&philo->meal_time);
+	return ((long_current - long_meal_time) >= philo->info->time_to_die);
 }
 
-//int main(int argc, char* argv[])
+static int		philo_monitoring(t_philo *philo, t_info *info)
+{
+	int i;
+
+	i = 0;
+	while (1)
+	{
+		while(i < info->philo_num)
+		{
+			if (are_you_dead(philo + i))
+			{
+				// TODO print i philo dies
+				info->exit_flag = 1; // TODO mutex protect_flag + lock/unlock
+				// TODO join all
+				// TODO destroy forks & philo mutexes
+				return (0);
+			}
+			i++;
+		}
+		i = 0;
+	}
+}
+
+int		main(int argc, char *argv[])
+{
+	t_info	info;
+	t_philo *philo;
+
+	memset(&info, 0, sizeof(info));
+	if (argc != 5 && argc != 6)
+		return (error_printf("ERROR: wrong argc"));
+	if (init(&info, philo, argc, argv))
+	{
+		free(info.forks);
+		info.forks = NULL;
+		return (EXIT_FAILURE);
+	}
+	printf("number_of_philosophers %d\n time_to_die %d\n time_to_eat %d\n"
+		   "time_to_sleep %d\n"
+		   "number_of_times_each_philosopher_must_eat %d\n", info.philo_num,
+		   info.time_to_die, info.time_to_eat, info.time_to_sleep, info
+		   .philo_must_eat);
+	return (philo_monitoring(philo, &info));
+}
+
+//int main()
 //{
-//	pthread_t t1, t2;
+//	pthread_t th[20];
+//	int	i;
 //	pthread_mutex_init(&mutex, NULL);
-//	pthread_create(&t1, NULL, &routine, NULL); // last NULL this is parameter
-//	// for our function routine
-//	if (pthread_create(&t2, NULL, &routine, NULL) != 0)
+//	for (i = 0; i < 20; i++)
 //	{
-//		return 1;
+//		if (pthread_create(&th[i], NULL, &routine, NULL) != 0)
+//		{
+//			perror("Failed to create thread");
+//			return 1;
+//		}
+//		printf("thread %d has started\n", i);
 //	}
-//	pthread_join(t1, NULL); // similar to wait
-//	pthread_join(t2, NULL);
+//	for (i = 0; i < 20; i++)
+//	{
+//		if (pthread_join(th[i], NULL) != 0){
+//			return 2;
+//		}
+//		printf("thread %d has finished execution\n", i);
+//	}
 //	pthread_mutex_destroy(&mutex);
 //	printf("Number of emails %d\n", mails);
 //	return (0);
-//}
-
-int main()
-{
-	pthread_t th[20];
-	int	i;
-	pthread_mutex_init(&mutex, NULL);
-	for (i = 0; i < 20; i++)
-	{
-		if (pthread_create(&th[i], NULL, &routine, NULL) != 0)
-		{
-			perror("Failed to create thread");
-			return 1;
-		}
-		printf("thread %d has started\n", i);
-	}
-	for (i = 0; i < 20; i++)
-	{
-		if (pthread_join(th[i], NULL) != 0){
-			return 2;
-		}
-		printf("thread %d has finished execution\n", i);
-	}
-	pthread_mutex_destroy(&mutex);
-	printf("Number of emails %d\n", mails);
-	return (0);
-}
-
-//void* roll_dice() {
-//	int value = (rand() % 6) + 1;
-//	int* result = malloc(sizeof(int));
-//	*result = value;
-//	// printf("%d\n", value);
-//	printf("Thread result: %p\n", result);
-//	return (void*) result;
-//}
-//
-//int main() {
-//	int* res;
-//	srand(time(NULL));
-//	pthread_t th;
-//	if (pthread_create(&th, NULL, &roll_dice, NULL) != 0) {
-//		return 1;
-//	}
-//	if (pthread_join(th, (void**) &res) != 0) {
-//		return 2;
-//	}
-//	printf("Main res: %p\n", res);
-//	printf("Result: %d\n", *res);
-//	free(res);
-//	return 0;
 //}
