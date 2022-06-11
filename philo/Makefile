@@ -17,7 +17,7 @@ HEADER		= includes/philo.h
 
 DIR			=
 
-FILES		= philo.c utils.c init.c \
+FILES		= philo.c utils.c init.c time_management.c routine.c\
 
 
 SRCS		= $(addprefix $(DIR), $(FILES))

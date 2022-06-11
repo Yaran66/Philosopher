@@ -47,15 +47,17 @@ typedef struct	s_philo
 
 int		main(int argc, char *argv[]);
 void*	routine();
-int		init(t_info *info,int argc, char *argv[]);
 int		ft_atoi_ps(const char *str, int *nbr);
 int		error_printf(char *err_msg);
-int		init(t_info *info, t_philo *philo, int argc, char *argv[]);
+int		init(t_info *info, t_philo **philo, int argc, char *argv[]);
 int		parsing_check_argv(t_info *info, int argc, char *argv[]);
-int 	init_philo_array(t_philo *philo, t_info *info);
+int 	init_philo_array(t_philo **philo, t_info *info);
 int		init_single_philo(t_philo *philo, t_info *info, int i);
 int 	init_info(t_info *info);
 int		are_you_dead(t_philo *philo);
 long long	time_converter(struct timeval *time);
+long long	get_time(void);
+void		status_print(t_info *info, int  id, char *status);
+int			ft_strncmp(const char *s1, const char *s2, size_t n);
 
 #endif

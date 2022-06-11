@@ -3,6 +3,45 @@
 //
 #include "includes/philo.h"
 
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+	while ((*s1 || *s2) && n)
+	{
+		if (*s1 != *s2)
+		{
+			return ((unsigned char)*s1 - (unsigned char)*s2);
+		}
+		s1++;
+		s2++;
+		n--;
+	}
+	return (0);
+}
+
+void	status_print(t_info *info, int  id, char *status)
+{
+	long long	time_stat;
+
+	time_stat = get_time() - time_converter(&info->start_prog);
+	pthread_mutex_lock(&info->protect_flag);
+	pthread_mutex_lock(&info->print);
+	if (info->exit_flag)
+	{
+		pthread_mutex_unlock(&info->protect_flag);
+		pthread_mutex_unlock(&info->print);
+		return;
+	}
+	pthread_mutex_unlock(&info->protect_flag);
+	printf("%lld %d %s\n", time_stat, id, status);
+	if (ft_strncmp(status, "died", 5))
+	{
+		pthread_mutex_lock(&info->protect_flag);
+		info->exit_flag = 1;
+		pthread_mutex_unlock(&info->protect_flag);
+	}
+	pthread_mutex_unlock(&info->print);
+}
+
 int	error_printf(char *err_msg)
 {
 	printf("%s\n", err_msg);

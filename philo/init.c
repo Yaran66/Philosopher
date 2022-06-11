@@ -56,23 +56,23 @@ int init_single_philo(t_philo *philo, t_info *info, int i)
 	return (0);
 }
 
-int 	init_philo_array(t_philo *philo, t_info *info)
+int 	init_philo_array(t_philo **philo, t_info *info)
 {
 	int 	i;
 
 	i = 0;
-	philo = (t_philo *)(malloc(sizeof (t_philo) * info->philo_num));
-	if(!philo)
+	*philo = (t_philo *)(malloc(sizeof (t_philo) * info->philo_num));
+	if(!*philo)
 		return (-1);
 	while (i < info->philo_num)
 	{
-		if (init_single_philo(philo, info, ++i) == -1)
+		if (init_single_philo(*philo + i, info, i) == -1)
 		{
-			free(philo);
-			philo = NULL;
+			free(*philo);
+			*philo = NULL;
 			return(-1);
 		}
-	//	i++;
+		i++;
 	}
 	return (0);
 }
@@ -98,7 +98,7 @@ int	parsing_check_argv(t_info *info, int argc, char *argv[])
 	return (0);
 }
 
-int	init(t_info *info, t_philo *philo, int argc, char *argv[])
+int	init(t_info *info, t_philo **philo, int argc, char *argv[])
 {
 	gettimeofday(&info->start_prog, NULL);
 	info->exit_flag = 0;
