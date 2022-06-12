@@ -11,3 +11,13 @@ long long	get_time(void)
 	gettimeofday(&tv, NULL);
 	return (time_converter(&tv));
 }
+
+void	my_sleep(int ms)
+{
+	long long	time;
+
+	time = get_time();
+	usleep(ms * 920);
+	while (get_time() < time + ms)
+		usleep(ms * 2);
+}

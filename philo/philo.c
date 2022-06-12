@@ -16,7 +16,7 @@
 //	return(0); //TODO lock
 //}
 
-static void	my_destroy(t_philo *philo, t_info *info)
+void	my_destroy(t_philo *philo, t_info *info)
 {
 	int	i;
 
@@ -25,9 +25,9 @@ static void	my_destroy(t_philo *philo, t_info *info)
 	pthread_mutex_destroy(&info->protect_flag);
 	while(i < info->philo_num)
 		pthread_mutex_destroy(&info->forks[i++]);
-	i = 0;
+/*	i = 0;
 	while(i < info->philo_num)
-		pthread_mutex_destroy(&philo[i++].philo_mute);
+		pthread_mutex_destroy(&philo[i++].philo_mute);*/
 	free(info->forks);
 	info->forks = NULL;
 	free(philo);
