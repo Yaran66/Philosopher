@@ -26,6 +26,12 @@ int 	init_info(t_info *info)
 		info->forks = NULL;
 		return (-1);
 	}
+	if (pthread_mutex_init(&info->protect_flag, NULL) != 0)
+	{
+		free(info->forks);
+		info->forks = NULL;
+		return (-1);
+	}
 	 while(i < info->philo_num)
 	 {
 		 if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
@@ -66,7 +72,7 @@ int 	init_philo_array(t_philo **philo, t_info *info)
 		return (-1);
 	while (i < info->philo_num)
 	{
-		if (init_single_philo(*philo + i, info, i) == -1)
+		if (init_single_philo(*philo + i, info, i + 1) == -1)
 		{
 			free(*philo);
 			*philo = NULL;
@@ -103,8 +109,8 @@ int	init(t_info *info, t_philo **philo, int argc, char *argv[])
 	gettimeofday(&info->start_prog, NULL);
 	info->exit_flag = 0;
 	if ((parsing_check_argv(info, argc, argv) == -1) || \
-			(init_philo_array(philo, info) == -1) || \
-			(init_info(info) == -1))
+			(init_info(info) == -1) || \
+			(init_philo_array(philo, info) == -1))
 		return (-1);
 	return (0);
 }
