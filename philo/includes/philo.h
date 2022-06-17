@@ -28,6 +28,7 @@ typedef struct	s_info
 	int 			time_to_eat;
 	int				time_to_sleep;
 	int				philo_must_eat;
+	int 			eaten_philo;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print;
 	pthread_mutex_t	protect_flag;	// TODO initialize mutex
@@ -45,19 +46,21 @@ typedef struct	s_philo
 	pthread_mutex_t philo_mute;
 }	t_philo;
 
-int		main(int argc, char *argv[]);
-void*	routine();
-int		ft_atoi_ps(const char *str, int *nbr);
-int		error_printf(char *err_msg);
-int		init(t_info *info, t_philo **philo, int argc, char *argv[]);
-int		parsing_check_argv(t_info *info, int argc, char *argv[]);
-int 	init_philo_array(t_philo **philo, t_info *info);
-int		init_single_philo(t_philo *philo, t_info *info, int i);
-int 	init_info(t_info *info);
-int		are_you_dead(t_philo *philo);
+int			main(int argc, char *argv[]);
+void*		routine();
+int			ft_atoi_ps(const char *str, int *nbr);
+int			error_printf(char *err_msg);
+int			init(t_info *info, t_philo **philo, int argc, char *argv[]);
+int			parsing_check_argv(t_info *info, int argc, char *argv[]);
+int 		init_philo_array(t_philo **philo, t_info *info);
+int			init_single_philo(t_philo *philo, t_info *info, int i);
+int 		init_info(t_info *info);
+int			are_you_dead(t_philo *philo);
 long long	time_converter(struct timeval *time);
 long long	get_time(void);
 void		status_print(t_info *info, int  id, char *status);
 int			ft_strncmp(const char *s1, const char *s2, size_t n);
+void		my_destroy(t_philo *philo, t_info *info);
+void		my_sleep(int ms);
 
 #endif

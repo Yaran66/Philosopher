@@ -6,17 +6,23 @@
 /*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/10 17:59:45 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/10 17:59:57 by wjasmine         ###   ########.fr       */
+/*   Updated: 2022/06/17 16:33:42 by wjasmine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "includes/philo.h"
 
-//void*	routine()
+//static void	eaten_philo(t_info *info)
 //{
-//	return(0); //TODO lock
+//	if (!info->exit_flag)
+//	{
+//		pthread_mutex_lock(&info->protect_flag);
+//		if (info->eaten_philo == info->philo_num)
+//			info->exit_flag = 1;
+//		pthread_mutex_unlock(&info->protect_flag);
+//	}
 //}
 
-static void	my_destroy(t_philo *philo, t_info *info)
+void	my_destroy(t_philo *philo, t_info *info)
 {
 	int	i;
 
@@ -25,9 +31,9 @@ static void	my_destroy(t_philo *philo, t_info *info)
 	pthread_mutex_destroy(&info->protect_flag);
 	while(i < info->philo_num)
 		pthread_mutex_destroy(&info->forks[i++]);
-	i = 0;
+/*	i = 0;
 	while(i < info->philo_num)
-		pthread_mutex_destroy(&philo[i++].philo_mute);
+		pthread_mutex_destroy(&philo[i++].philo_mute);*/
 	free(info->forks);
 	info->forks = NULL;
 	free(philo);
@@ -55,6 +61,7 @@ static int		philo_monitoring(t_philo *philo, t_info *info)
 	while (1)
 	{
 		i = 0;
+//		eaten_philo(info); //TODO check if everyone eaten
 		while(i < info->philo_num)
 		{
 			if (are_you_dead(philo + i))
@@ -98,29 +105,3 @@ int		main(int argc, char *argv[])
 //		   .philo_must_eat);
 	return (philo_monitoring(philo, &info));
 }
-
-//int main()
-//{
-//	pthread_t th[20];
-//	int	i;
-//	pthread_mutex_init(&mutex, NULL);
-//	for (i = 0; i < 20; i++)
-//	{
-//		if (pthread_create(&th[i], NULL, &routine, NULL) != 0)
-//		{
-//			perror("Failed to create thread");
-//			return 1;
-//		}
-//		printf("thread %d has started\n", i);
-//	}
-//	for (i = 0; i < 20; i++)
-//	{
-//		if (pthread_join(th[i], NULL) != 0){
-//			return 2;
-//		}
-//		printf("thread %d has finished execution\n", i);
-//	}
-//	pthread_mutex_destroy(&mutex);
-//	printf("Number of emails %d\n", mails);
-//	return (0);
-//}
