@@ -1,6 +1,15 @@
-//
-// Created by Warmonger Jasmine on 6/10/22.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/17 20:42:14 by wjasmine          #+#    #+#             */
+/*   Updated: 2022/06/17 20:42:20 by wjasmine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "includes/philo.h"
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
@@ -17,7 +26,6 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	}
 	return (0);
 }
-
 
 int	error_printf(char *err_msg)
 {

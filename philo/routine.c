@@ -51,8 +51,8 @@ void	eating(t_philo *philo,int first_fork,int second_fork)
 	pthread_mutex_lock(&philo->philo_mute);
 	gettimeofday(&philo->meal_time, NULL);
 	pthread_mutex_unlock(&philo->philo_mute);
-//	if ((philo->meal_count += 1) == philo->info->philo_must_eat)
-//		philo->info->eaten_philo +=1; //TODO include the rows
+	if ((philo->meal_count += 1) == philo->info->philo_must_eat)
+		philo->info->eaten_philo +=1; //TODO include the rows
 	my_sleep(philo->info->time_to_eat);
 	pthread_mutex_unlock(&philo->info->forks[second_fork]);
 	pthread_mutex_unlock(&philo->info->forks[first_fork]);

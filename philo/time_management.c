@@ -12,12 +12,25 @@ long long	get_time(void)
 	return (time_converter(&tv));
 }
 
+//void	my_sleep(int ms)
+//{
+//	long long	time;
+//
+//	time = get_time();
+//	usleep(ms * 920);
+//	while (get_time() < time + ms)
+//		usleep(ms * 2);
+//}
 void	my_sleep(int ms)
 {
-	long long	time;
+	unsigned long long	start;
+	unsigned long long	current;
 
-	time = get_time();
-	usleep(ms * 920);
-	while (get_time() < time + ms)
-		usleep(ms * 2);
+	start = get_time();
+	current = get_time();
+	while((current - start) < (unsigned long long)ms)
+	{
+		usleep(100);
+		current = get_time();
+	}
 }

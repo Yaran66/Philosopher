@@ -11,36 +11,31 @@
 /* ************************************************************************** */
 #include "includes/philo.h"
 
-int 	init_info(t_info *info)
+int	init_info(t_info *info)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	info->forks = (pthread_mutex_t *)malloc(sizeof (pthread_mutex_t) *
+	info->forks = (pthread_mutex_t *)malloc(sizeof (pthread_mutex_t) * \
 			info->philo_num);
 	if (!info->forks)
 		return (-1);
-	if (pthread_mutex_init(&info->print, NULL) != 0)
+	if ((pthread_mutex_init(&info->print, NULL) != 0) || \
+			(pthread_mutex_init(&info->protect_flag, NULL) != 0))
 	{
 		free(info->forks);
 		info->forks = NULL;
 		return (-1);
 	}
-	if (pthread_mutex_init(&info->protect_flag, NULL) != 0)
+	while (i < info->philo_num)
 	{
-		free(info->forks);
-		info->forks = NULL;
-		return (-1);
+		if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
+		{
+			free(info->forks);
+			info->forks = NULL;
+			return (-1);
+		}
 	}
-	 while(i < info->philo_num)
-	 {
-		 if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
-		 {
-			 free(info->forks);
-			 info->forks = NULL;
-			 return (-1);
-		 }
-	 }
 	return (0);
 }
 
@@ -50,7 +45,7 @@ int	init_single_philo(t_philo *philo, t_info *info, int i)
 	philo->meal_count = 0;
 	philo->info = info;
 	philo->meal_time = info->start_prog;
-	if (pthread_mutex_init(&philo->philo_mute, NULL)  != 0)
+	if (pthread_mutex_init(&philo->philo_mute, NULL) != 0)
 	{
 		pthread_mutex_destroy(&philo->philo_mute);
 		return (-1);
@@ -62,13 +57,13 @@ int	init_single_philo(t_philo *philo, t_info *info, int i)
 	return (0);
 }
 
-int 	init_philo_array(t_philo **philo, t_info *info)
+int	init_philo_array(t_philo **philo, t_info *info)
 {
-	int 	i;
+	int	i;
 
 	i = 0;
 	*philo = (t_philo *)(malloc(sizeof (t_philo) * info->philo_num));
-	if(!*philo)
+	if (!*philo)
 		return (-1);
 	while (i < info->philo_num)
 	{
@@ -76,7 +71,7 @@ int 	init_philo_array(t_philo **philo, t_info *info)
 		{
 			free(*philo);
 			*philo = NULL;
-			return(-1);
+			return (-1);
 		}
 		i++;
 	}
