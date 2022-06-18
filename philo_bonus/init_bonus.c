@@ -1,42 +1,55 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/10 19:44:37 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/10 19:44:48 by wjasmine         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-#include "includes/philo.h"
+#include "includes/philo_bonus.h"
+
+static sem_t	*my_sem_init (const char *name, unsigned int value)
+{
+	sem_t	*sem;
+
+	sem = sem_open(name, O_CREAT | O_EXCL, 0644, value);
+	if (sem != SEM_FAILED)
+		return (sem);
+	sem_unlink(name);
+	return (sem_open(name, O_CREAT | O_EXCL, 0644, value));
+}
 
 int	init_info(t_info *info)
 {
 	int	i;
 
 	i = 0;
-	info->forks = (pthread_mutex_t *)malloc(sizeof (pthread_mutex_t) * \
-			info->philo_num);
-	if (!info->forks)
-		return (-1);
-	if ((pthread_mutex_init(&info->print, NULL) != 0) || \
-			(pthread_mutex_init(&info->protect_flag, NULL) != 0) || \
-			(pthread_mutex_init(&info->protect_eaten, NULL) != 0))
+//	info->forks = (sem_t *)malloc(sizeof (sem_t) * info->philo_num);
+//	if (!info->forks)
+//		return (-1);
+	info->forks = my_sem_init("forks", info->philo_num);
+	info->print = my_sem_init("print", 1);
+	info->protect_flag = my_sem_init("protect_flag", 1);
+	info->protect_eaten = my_sem_init("protect_eaten", 1);
+	if (info->forks == SEM_FAILED || info->print == SEM_FAILED || \
+	info->protect_flag == SEM_FAILED || info->protect_eaten == SEM_FAILED)
 	{
-		free(info->forks);
-		info->forks = NULL;
+		sem_close(info->forks);
+		sem_close(info->print);
+		sem_close(info->protect_flag);
+		sem_close(info->protect_eaten);
+
 		return (-1);
 	}
-	while (i < info->philo_num)
-	{
-		if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
-		{
-			free(info->forks);
-			info->forks = NULL;
-			return (-1);
-		}
-	}
+//	if ((pthread_mutex_init(&info->print, NULL) != 0) || \
+//			(pthread_mutex_init(&info->protect_flag, NULL) != 0) || \
+//			(pthread_mutex_init(&info->protect_eaten, NULL) != 0))
+//	{
+//		free(info->forks);
+//		info->forks = NULL;
+//		return (-1);
+//	}
+//	while (i < info->philo_num)
+//	{
+//		if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
+//		{
+//			free(info->forks);
+//			info->forks = NULL;
+//			return (-1);
+//		}
+//	}
 	return (0);
 }
 

@@ -20,6 +20,8 @@
 # include <pthread.h> // pthread_create, etc....
 # include <sys/time.h> // gettimeofday
 # include <limits.h>
+# include <semaphore.h>
+# include <sys/wait.h>
 
 typedef struct s_info
 {
@@ -29,10 +31,10 @@ typedef struct s_info
 	int				time_to_sleep;
 	int				philo_must_eat;
 	int				eaten_philo;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	print;
-	pthread_mutex_t	protect_flag;
-	pthread_mutex_t	protect_eaten;
+	sem_t			*forks;
+	sem_t			*print;
+	sem_t			*protect_flag;
+	sem_t			*protect_eaten;
 	int				exit_flag;
 	struct timeval	start_prog;
 }	t_info;
@@ -40,11 +42,12 @@ typedef struct s_info
 typedef struct s_philo
 {
 	int				philo_id;
+	int 			pid;
 	pthread_t		thr;
 	t_info			*info;
 	struct timeval	meal_time;
 	int				meal_count;
-	pthread_mutex_t	philo_mute;
+//	pthread_mutex_t	philo_mute;
 }	t_philo;
 
 int			main(int argc, char *argv[]);

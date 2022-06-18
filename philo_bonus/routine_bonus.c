@@ -1,15 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   routine.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/11 14:25:25 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/17 15:01:04 by wjasmine         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-#include "includes/philo.h"
+#include "includes/philo_bonus.h"
 
 void	choose_fork(t_philo *philo, int *first_fork, int *second_fork)
 {
