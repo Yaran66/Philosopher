@@ -30,7 +30,10 @@ int	init_info(t_info *info)
 		sem_close(info->print);
 		sem_close(info->protect_flag);
 		sem_close(info->protect_eaten);
-
+		unlink("forks");
+		unlink("print");
+		unlink("protect_flag");
+		unlink("protect_eaten");
 		return (-1);
 	}
 //	if ((pthread_mutex_init(&info->print, NULL) != 0) || \
