@@ -1,17 +1,52 @@
 #include "includes/philo_bonus.h"
 
-void	choose_fork(t_philo *philo, int *first_fork, int *second_fork)
+static void	array_sem_unlink(t_info *info)
 {
-	if (philo->philo_id == 1)
+	int		i;
+	char	name[11];
+
+	i = 0;
+	ft_strcpy(name, "eaten_0000\0");
+	while (i < info->philo_num)
 	{
-		*first_fork = 0;
-		*second_fork = philo->info->philo_num - 1;
+		sem_unlink(name);
+		i++;
+		name_generator(name);
 	}
-	else
+}
+
+void	my_sem_clean(t_info *info)
+{
+	int i;
+
+	i = 0;
+	while (i < info->philo_num)
 	{
-		*first_fork = philo->philo_id - 2;
-		*second_fork = philo->philo_id - 1;
+		sem_close(info->philo[i].eaten);
+		i++;
 	}
+	sem_close(info->forks);
+	sem_unlink("forks");
+	sem_close(info->print);
+	sem_unlink("print");
+	array_sem_unlink(info);
+}
+
+void	wait_kill_clean(t_info *info, int pid)
+{
+	pid_t	done_pid;
+	int		i;
+
+	i = 0;
+	done_pid = waitpid(-1, 0, 0);
+	if(pid)
+		kill(pid, SIGTERM);
+	while(i < info->philo_num)
+	{
+		if (info->philo[i].pid != done_pid)
+			kill(info->philo[i].pid, SIGTERM);
+	}
+	my_sem_clean(info);
 }
 
 void	status_print(t_info *info, int id, char *status)
@@ -19,69 +54,34 @@ void	status_print(t_info *info, int id, char *status)
 	long long	time_stat;
 
 	time_stat = get_time() - time_converter(&info->start_prog);
-	pthread_mutex_lock(&info->print);
-	pthread_mutex_lock(&info->protect_flag);
-	if (info->exit_flag)
-	{
-		if (!ft_strncmp(status, "died", 5))
-			printf("%lld %d %s\n", time_stat, id, status);
-		pthread_mutex_unlock(&info->protect_flag);
-		pthread_mutex_unlock(&info->print);
-		return ;
-	}
-	pthread_mutex_unlock(&info->protect_flag);
+	sem_wait(info->print);
 	printf("%lld %d %s\n", time_stat, id, status);
-	pthread_mutex_unlock(&info->print);
+	sem_post(info->print);
 }
 
-void	eating(t_philo *philo, int first_fork, int second_fork)
+void	routine(t_info *info, int i)
 {
-	pthread_mutex_lock(&philo->info->forks[first_fork]);
-	status_print(philo->info, philo->philo_id, "has taken a fork");
-	if (philo->info->philo_num == 1)
-	{
-		my_sleep(philo->info->time_to_die);
-		return ;
-	}
-	pthread_mutex_lock(&philo->info->forks[second_fork]);
-	status_print(philo->info, philo->philo_id, "has taken a fork");
-	status_print(philo->info, philo->philo_id, "is eating");
-	pthread_mutex_lock(&philo->philo_mute);
-	gettimeofday(&philo->meal_time, NULL);
-	pthread_mutex_unlock(&philo->philo_mute);
-	my_sleep(philo->info->time_to_eat);
-	pthread_mutex_unlock(&philo->info->forks[second_fork]);
-	pthread_mutex_unlock(&philo->info->forks[first_fork]);
-	pthread_mutex_lock(&philo->info->protect_eaten);
-	philo->meal_count += 1;
-	if (philo->meal_count == philo->info->philo_must_eat)
-		philo->info->eaten_philo += 1;
-	pthread_mutex_unlock(&philo->info->protect_eaten);
-}
-
-void	*routine(void *p)
-{
-	t_philo	*philo;
-	int		first_fork;
-	int		second_fork;
-
-	philo = (t_philo *)p;
-	if (philo->philo_id % 2 == 0)
-		usleep(200);
+	gettimeofday( &info->philo[i].meal_time, 0);
+	pthread_create(&info->philo[i].thr, NULL, philo_monitoring,
+				   &info->philo[i]);
+	pthread_detach(info->philo[i].thr);
+//	if (philo->philo_id % 2 == 0)
+//		usleep(200);
 	while (1)
 	{
-		status_print(philo->info, philo->philo_id, "is thinking");
-		usleep(100);
-		choose_fork(philo, &first_fork, &second_fork);
-		eating(philo, first_fork, second_fork);
-		pthread_mutex_lock(&philo->info->protect_flag);
-		if (philo->info->exit_flag)
-		{
-			pthread_mutex_unlock(&philo->info->protect_flag);
-			return (NULL);
-		}
-		pthread_mutex_unlock(&philo->info->protect_flag);
-		status_print(philo->info, philo->philo_id, "is sleeping");
-		my_sleep(philo->info->time_to_sleep);
+		status_print(info, i, "is thinking");
+		//usleep(100);
+		sem_wait(info->forks);
+		status_print(info, i, "has taken a fork");
+		sem_wait(info->forks);
+		status_print(info, i, "has taken a fork");
+		status_print(info, i, "is eating");
+		sem_post(info->philo[i].eaten);
+		my_sleep(info->time_to_eat);
+		gettimeofday(&info->philo[i].meal_time, NULL);
+		sem_post(info->forks);
+		sem_post(info->forks);
+		status_print(info, i, "is sleeping");
+		my_sleep(info->time_to_sleep);
 	}
 }

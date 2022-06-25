@@ -1,31 +1,44 @@
 #include "includes/philo_bonus.h"
 
-static int	eaten_philo(t_info *info)
+static int satiety_all(t_info *info)
 {
-	pthread_mutex_lock(&info->protect_eaten);
-	if (info->eaten_philo == info->philo_num)
-	{
-		pthread_mutex_unlock(&info->protect_eaten);
-		return (1);
-	}
-	pthread_mutex_unlock(&info->protect_eaten);
-	return (0);
-}
-
-void	my_destroy(t_philo *philo, t_info *info)
-{
-	int	i;
+	int i;
 
 	i = 0;
-	pthread_mutex_destroy(&info->print);
-	pthread_mutex_destroy(&info->protect_flag);
-	pthread_mutex_destroy(&info->protect_eaten);
-	while (i < info->philo_num)
-		pthread_mutex_destroy(&info->forks[i++]);
-	free(info->forks);
-	info->forks = NULL;
-	free(philo);
-	philo = NULL;
+	while(i < info->philo_num)
+	{
+		if (info->philo[i].meal_count < info->philo_must_eat)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+static int	satiety_philo(t_info *info)
+{
+	int i;
+
+	while (1)
+	{
+		i = 0;
+		while (i < info->philo_num)
+		{
+			sem_wait(info->philo[i].eaten);
+			info->philo[i].meal_count++;
+			if ((info->philo[i].meal_count == info->philo_must_eat) &&
+					(satiety_all(info) == 1))
+			{
+				i = 0;
+				while (i < info->philo_num)
+				{
+					kill(info->philo[i].pid, SIGTERM);
+					i++;
+				}
+				exit(0);
+			}
+		}
+		usleep(500);
+	}
 }
 
 int	are_you_dead(t_philo *philo)
@@ -36,45 +49,34 @@ int	are_you_dead(t_philo *philo)
 
 	gettimeofday(&current, NULL);
 	long_current = time_converter(&current);
-	pthread_mutex_lock(&philo->philo_mute);
 	long_meal_time = time_converter(&philo->meal_time);
-	pthread_mutex_unlock(&philo->philo_mute);
 	return ((long_current - long_meal_time) >= philo->info->time_to_die);
 }
 
-static int	philo_monitoring(t_philo *philo, t_info *info)
+void	*philo_monitoring(void *p)
 {
-	int	i;
+	t_philo	*philo;
 
+	philo = p;
 	while (1)
 	{
-		i = 0;
-		while (i < info->philo_num)
+		if (are_you_dead(philo)) // TODO semaphores in function are_yuo_dead
 		{
-			if (are_you_dead(philo + i) || eaten_philo(info))
-			{
-				pthread_mutex_lock(&info->protect_flag);
-				info->exit_flag = 1;
-				pthread_mutex_unlock(&info->protect_flag);
-				if (are_you_dead(philo + i))
-					status_print(info, philo[i].philo_id, "died");
-				i = 0;
-				while (i < info->philo_num)
-					pthread_join(philo[i++].thr, NULL);
-				my_destroy(philo, info);
-				return (0);
-			}
-			i++;
+			status_print(philo->info, philo->philo_id, "died");
+			exit (1); // TODO ?? X3 do we need 1 or not?
 		}
 		usleep(500);
 	}
 }
 
+
 int	main(int argc, char *argv[])
 {
 	t_info	info;
 	t_philo	*philo;
+	int		i;
 
+	i = 0;
 	memset(&info, 0, sizeof(info));
 	if (argc != 5 && argc != 6)
 		return (error_printf("ERROR: wrong argc"));
@@ -84,5 +86,19 @@ int	main(int argc, char *argv[])
 		info.forks = NULL;
 		return (EXIT_FAILURE);
 	}
-	return (philo_monitoring(philo, &info));
+	while(i < info.philo_num)
+	{
+		info.philo[i].pid = fork();
+		if (info.philo[i].pid == 0)
+			routine(&info, i);
+		i++;
+	}
+	if (info.philo_must_eat != 0)
+	{
+		info.pid_satiety = fork();
+		if (info.pid_satiety == 0)
+			satiety_philo(&info);
+	}
+	wait_kill_clean(&info, info.pid_satiety);
+	return (0);
 }

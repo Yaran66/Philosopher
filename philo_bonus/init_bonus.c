@@ -13,84 +13,103 @@ static sem_t	*my_sem_init (const char *name, unsigned int value)
 
 int	init_info(t_info *info)
 {
-	int	i;
-
-	i = 0;
-//	info->forks = (sem_t *)malloc(sizeof (sem_t) * info->philo_num);
-//	if (!info->forks)
-//		return (-1);
 	info->forks = my_sem_init("forks", info->philo_num);
 	info->print = my_sem_init("print", 1);
-	info->protect_flag = my_sem_init("protect_flag", 1);
-	info->protect_eaten = my_sem_init("protect_eaten", 1);
+	info->protect_flag = my_sem_init("protect_flag", 0);
+	info->all_eaten = my_sem_init("protect_eaten", 0);
 	if (info->forks == SEM_FAILED || info->print == SEM_FAILED || \
-	info->protect_flag == SEM_FAILED || info->protect_eaten == SEM_FAILED)
+	info->protect_flag == SEM_FAILED || info->all_eaten == SEM_FAILED)
 	{
 		sem_close(info->forks);
 		sem_close(info->print);
 		sem_close(info->protect_flag);
-		sem_close(info->protect_eaten);
-		unlink("forks");
-		unlink("print");
-		unlink("protect_flag");
-		unlink("protect_eaten");
+		sem_close(info->all_eaten);
+		sem_unlink("forks");
+		sem_unlink("print");
+		sem_unlink("protect_flag");
+		sem_unlink("protect_eaten");
 		return (-1);
 	}
-//	if ((pthread_mutex_init(&info->print, NULL) != 0) || \
-//			(pthread_mutex_init(&info->protect_flag, NULL) != 0) || \
-//			(pthread_mutex_init(&info->protect_eaten, NULL) != 0))
-//	{
-//		free(info->forks);
-//		info->forks = NULL;
-//		return (-1);
-//	}
-//	while (i < info->philo_num)
-//	{
-//		if (pthread_mutex_init(&info->forks[i++], NULL) != 0)
-//		{
-//			free(info->forks);
-//			info->forks = NULL;
-//			return (-1);
-//		}
-//	}
 	return (0);
 }
 
-int	init_single_philo(t_philo *philo, t_info *info, int i)
+int	init_single_philo(t_philo *philo, t_info *info, int i, char *name)
 {
 	philo->philo_id = i;
-	philo->meal_count = 0;
+	philo->pid		= 0;
 	philo->info = info;
 	philo->meal_time = info->start_prog;
-	if (pthread_mutex_init(&philo->philo_mute, NULL) != 0)
-	{
-		pthread_mutex_destroy(&philo->philo_mute);
+	philo->meal_count = 0;
+	philo->eaten = my_sem_init(name, 0);
+	if (philo->eaten == SEM_FAILED)
 		return (-1);
-	}
-	if (pthread_create(&philo->thr, NULL, &routine, philo) != 0)
-	{
-		return (-1);
-	}
 	return (0);
+}
+
+char *name_generator(char *name)
+{
+	if (name[9] == '9')
+	{
+		if (name[8] == '9')
+		{
+			if (name [7] == '9')
+			{
+				name[9] = '0';
+				name[8] = '0';
+				name[7] = '0';
+				name[6]++;
+				return (name);
+			}
+			name[9] = '0';
+			name[8] = '0';
+			name[7]++;
+			return (name);
+		}
+		name[9] = '0';
+		name[8]++;
+		return (name);
+	}
+	else
+		name[9]++;
+	return (name);
+}
+char	*ft_strcpy(char *dst, const char *src)
+{
+	char	*res;
+
+	res = dst;
+	while (*src)
+	{
+		*dst = *src;
+		dst++;
+		src++;
+	}
+	return (res);
 }
 
 int	init_philo_array(t_philo **philo, t_info *info)
 {
-	int	i;
+	int		i;
+	char	name[11];
 
 	i = 0;
+	ft_strcpy(name, "eaten_0000\0");
 	*philo = (t_philo *)(malloc(sizeof (t_philo) * info->philo_num));
 	if (!*philo)
 		return (-1);
 	while (i < info->philo_num)
 	{
-		if (init_single_philo(*philo + i, info, i + 1) == -1)
+		//sem_unlink(name);
+		if (init_single_philo(*philo + i, info, i + 1, name) == -1)
 		{
-			free(*philo);
+			free(*philo);//TODO while () to sem_close + sem_unlink separate
+			// function with number of philo we stack and clean them
 			*philo = NULL;
 			return (-1);
 		}
 		i++;
+		name_generator(name);
+		//printf("%s\n", name);
 	}
 	return (0);
 }
