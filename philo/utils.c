@@ -6,7 +6,7 @@
 /*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/17 20:42:14 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/17 20:42:20 by wjasmine         ###   ########.fr       */
+/*   Updated: 2022/06/27 07:16:20 by wjasmine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 int	error_printf(char *err_msg)
 {
 	printf("%s\n", err_msg);
-	return (-1);
+	return (1);
 }
 
 static int	is_space(char c)

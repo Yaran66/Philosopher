@@ -87,7 +87,7 @@ int	parsing_check_argv(t_info *info, int argc, char *argv[])
 		ft_atoi_ps(argv[4], &info->time_to_sleep) == -1 || \
 		(argc == 6 && ft_atoi_ps(argv[5], &info->philo_must_eat) == -1))
 		return (error_printf("ERROR: wrong type of arguments, parser error"));
-	if (info->philo_num <= 0)
+	if (info->philo_num < 1)
 		return (error_printf("ERROR: wrong num of philosophers"));
 	if (info->time_to_die < 0)
 		return (error_printf("ERROR: wrong time to die"));

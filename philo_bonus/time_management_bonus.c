@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   time_management_bonus.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/10 17:59:45 by wjasmine          #+#    #+#             */
+/*   Updated: 2022/06/28 19:26:17 by wjasmine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "includes/philo_bonus.h"
 
 long long	time_converter(struct timeval *time)
@@ -22,16 +34,3 @@ void	my_sleep(int ms)
 	while (get_time() < time + ms)
 		usleep(ms * 2);
 }
-//void	my_sleep(int ms)
-//{
-//	unsigned long long	start;
-//	unsigned long long	current;
-//
-//	start = get_time();
-//	current = get_time();
-//	while ((current - start) < (unsigned long long)ms)
-//	{
-//		usleep(100);
-//		current = get_time();
-//	}
-//}

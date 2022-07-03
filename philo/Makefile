@@ -27,7 +27,8 @@ OBJS		= $(SRCS:%.c=%.o)
 DS			= $(SRCS:%.c=%.d)
 
 CC 			= cc
-CFLAGS		= -Wall -Wextra -Werror -MMD -fsanitize=thread
+CFLAGS		= -Wall -Wextra -Werror -MMD
+#CFLAGS		= -Wall -Wextra -Werror -MMD -fsanitize=thread
 
 .PHONY: 	all clean fclean re bonus
 

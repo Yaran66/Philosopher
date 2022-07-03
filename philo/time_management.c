@@ -6,7 +6,7 @@
 /*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/18 10:22:45 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/18 10:22:57 by wjasmine         ###   ########.fr       */
+/*   Updated: 2022/06/27 07:12:25 by wjasmine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,3 @@ void	my_sleep(int ms)
 	while (get_time() < time + ms)
 		usleep(ms * 2);
 }
-//void	my_sleep(int ms)
-//{
-//	unsigned long long	start;
-//	unsigned long long	current;
-//
-//	start = get_time();
-//	current = get_time();
-//	while ((current - start) < (unsigned long long)ms)
-//	{
-//		usleep(100);
-//		current = get_time();
-//	}
-//}

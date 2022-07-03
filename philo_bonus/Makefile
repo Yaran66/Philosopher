@@ -6,7 +6,7 @@
 #    By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/11 15:24:34 by wjasmine          #+#    #+#              #
-#   Updated: 2022/05/19 21:18:34 by wjasmine         ###   ########.fr       # #
+#   Updated: 2022/06/27 08:52:52 by wjasmine         ###   ########.fr       # #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ HEADER		= includes/philo_bonus.h
 
 DIR			=
 
-FILES		= philo_bonus.c utils_bonus.c init_bonus.c time_management_bonus.c routine_bonus.c\
+FILES		= philo_bonus.c utils_bonus.c init_bonus.c time_management_bonus.c routine_bonus.c clear_bonus.c\
 
 
 SRCS		= $(addprefix $(DIR), $(FILES))
@@ -27,7 +27,8 @@ OBJS		= $(SRCS:%.c=%.o)
 DS			= $(SRCS:%.c=%.d)
 
 CC 			= cc
-CFLAGS		= -Wall -Wextra -Werror -MMD -fsanitize=thread
+CFLAGS		= -Wall -Wextra -Werror -MMD
+#CFLAGS		= -Wall -Wextra -Werror -MMD -fsanitize=thread
 
 .PHONY: 	all clean fclean re bonus
 

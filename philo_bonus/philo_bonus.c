@@ -1,104 +1,111 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/10 17:59:45 by wjasmine          #+#    #+#             */
+/*   Updated: 2022/06/28 19:14:58 by wjasmine         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "includes/philo_bonus.h"
 
-static int satiety_all(t_info *info)
+static void	ft_wait_and_kill(t_info *info, pid_t observer_pid)
 {
-	int i;
+	pid_t	died_philo_pid;
+	int		i;
+
+	died_philo_pid = waitpid(-1, 0, 0);
+	if (observer_pid)
+		kill(observer_pid, SIGKILL);
+	i = 0;
+	while (i < info->philo_count)
+	{
+		if (info->philos[i].pid != died_philo_pid)
+			kill(info->philos[i].pid, SIGKILL);
+		i++;
+	}
+}
+
+static int	ft_is_all_eat_more(t_philo *philos, \
+								int philo_count, int eating_times)
+{
+	int	i;
 
 	i = 0;
-	while(i < info->philo_num)
+	while (i < philo_count)
 	{
-		if (info->philo[i].meal_count < info->philo_must_eat)
+		if (philos[i].eating_times < eating_times)
 			return (0);
 		i++;
 	}
 	return (1);
 }
 
-static int	satiety_philo(t_info *info)
+static void	ft_kill_all(t_info *info)
 {
-	int i;
+	int	i;
 
+	i = 0;
+	while (i < info->philo_count)
+	{
+		kill(info->philos[i].pid, SIGKILL);
+		i++;
+	}
+}
+
+void	*eating_observe(void *data)
+{
+	t_info	*info;
+	int		i;
+
+	info = data;
 	while (1)
 	{
 		i = 0;
-		while (i < info->philo_num)
+		while (i < info->philo_count)
 		{
-			sem_wait(info->philo[i].eaten);
-			info->philo[i].meal_count++;
-			if ((info->philo[i].meal_count == info->philo_must_eat) &&
-					(satiety_all(info) == 1))
+			sem_wait(info->philos[i].eating_sem);
+			info->philos[i].eating_times++;
+			if (ft_is_all_eat_more(info->philos, info->philo_count, \
+				info->c_eating_times))
 			{
-				i = 0;
-				while (i < info->philo_num)
-				{
-					kill(info->philo[i].pid, SIGTERM);
-					i++;
-				}
+				ft_kill_all(info);
 				exit(0);
 			}
+			i++;
 		}
-		usleep(500);
 	}
+	return (0);
 }
-
-int	are_you_dead(t_philo *philo)
-{
-	struct timeval	current;
-	long long		long_current;
-	long long		long_meal_time;
-
-	gettimeofday(&current, NULL);
-	long_current = time_converter(&current);
-	long_meal_time = time_converter(&philo->meal_time);
-	return ((long_current - long_meal_time) >= philo->info->time_to_die);
-}
-
-void	*philo_monitoring(void *p)
-{
-	t_philo	*philo;
-
-	philo = p;
-	while (1)
-	{
-		if (are_you_dead(philo)) // TODO semaphores in function are_yuo_dead
-		{
-			status_print(philo->info, philo->philo_id, "died");
-			exit (1); // TODO ?? X3 do we need 1 or not?
-		}
-		usleep(500);
-	}
-}
-
 
 int	main(int argc, char *argv[])
 {
 	t_info	info;
-	t_philo	*philo;
 	int		i;
+	pid_t	observer_pid;
 
-	i = 0;
 	memset(&info, 0, sizeof(info));
-	if (argc != 5 && argc != 6)
-		return (error_printf("ERROR: wrong argc"));
-	if (init(&info, &philo, argc, argv))
+	if (ft_init_argc(&info, argc, argv))
+		return (1);
+	i = 0;
+	while (i < info.philo_count)
 	{
-		free(info.forks);
-		info.forks = NULL;
-		return (EXIT_FAILURE);
-	}
-	while(i < info.philo_num)
-	{
-		info.philo[i].pid = fork();
-		if (info.philo[i].pid == 0)
-			routine(&info, i);
+		info.philos[i].pid = fork();
+		if (info.philos[i].pid == 0)
+			return (routine(&info, i));
 		i++;
 	}
-	if (info.philo_must_eat != 0)
+	observer_pid = 0;
+	if (info.c_eating_times != -1)
 	{
-		info.pid_satiety = fork();
-		if (info.pid_satiety == 0)
-			satiety_philo(&info);
+		observer_pid = fork();
+		if (observer_pid == 0)
+			eating_observe(&info);
 	}
-	wait_kill_clean(&info, info.pid_satiety);
+	ft_wait_and_kill(&info, observer_pid);
+	ft_remove_sems(&info);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: wjasmine <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/10 17:59:45 by wjasmine          #+#    #+#             */
-/*   Updated: 2022/06/17 16:33:42 by wjasmine         ###   ########.fr       */
+/*   Updated: 2022/06/28 20:06:19 by wjasmine         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "includes/philo.h"
@@ -93,7 +93,7 @@ int	main(int argc, char *argv[])
 	{
 		free(info.forks);
 		info.forks = NULL;
-		return (EXIT_FAILURE);
+		return (1);
 	}
 	return (philo_monitoring(philo, &info));
 }
